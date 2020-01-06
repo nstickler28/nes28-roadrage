@@ -1,0 +1,55 @@
+package model;
+
+import java.util.Map;
+
+public class Human extends AbstractVehicle {
+
+    private static final int DEATH_TIME = 45;
+    
+    private Terrain myTerrain;
+    
+    public Human(final int theX, final int theY, final Direction theDirection) {
+        super(theX, theY, theDirection, DEATH_TIME);
+    }
+    
+    @Override
+    public boolean canPass(final Terrain theTerrain, final Light theLight) {
+        boolean canPass = false;
+        if (theTerrain == Terrain.GRASS) {
+            canPass = true;
+        } else if (theTerrain == Terrain.CROSSWALK && (theLight != Light.GREEN)) {
+            canPass = true;
+        }
+        return canPass;
+    }
+    
+    @Override
+    public Direction chooseDirection(final Map<Direction, Terrain> theNeighbors) {
+        Direction newDirection = Direction.random();
+        Terrain newTerrain = theNeighbors.get(newDirection);
+        switch (myTerrain) {
+            case GRASS:
+                while (newTerrain != Terrain.GRASS) {
+                    newDirection = Direction.random();
+                    newTerrain = theNeighbors.get(newDirection);
+                }
+                break;                
+            case TRAIL:
+                while (newTerrain != Terrain.TRAIL) {
+                    newDirection = Direction.random();
+                    newTerrain = theNeighbors.get(newDirection);
+                }
+                break;             
+            case STREET:
+            case LIGHT:
+                while (newTerrain != Terrain.STREET && newTerrain != Terrain.LIGHT) {
+                    newDirection = Direction.random();
+                    newTerrain = theNeighbors.get(newDirection);
+                }
+                break;               
+            default:
+                break;
+        }
+        return newDirection;
+    }
+}

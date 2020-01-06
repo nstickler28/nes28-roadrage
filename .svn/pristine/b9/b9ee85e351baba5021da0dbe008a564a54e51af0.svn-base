@@ -1,0 +1,49 @@
+package model;
+
+import java.util.Map;
+
+public class Bicycle extends AbstractVehicle {
+
+    private static final int DEATH_TIME = 35;
+    
+    private Direction myDirection;
+    
+    public Bicycle(final int theX, final int theY, final Direction theDirection) {
+        super(theX, theY, theDirection, DEATH_TIME);
+    }
+    
+    @Override
+    public boolean canPass(final Terrain theTerrain, final Light theLight) {
+        boolean canPass = false;
+        if (theTerrain == Terrain.TRAIL || theTerrain == Terrain.STREET) {
+            canPass = true;
+        } else if ((theTerrain == Terrain.LIGHT && theLight == Light.GREEN)
+                        || (theTerrain == Terrain.CROSSWALK && theLight == Light.GREEN)) {
+            canPass = true;
+        }
+        return canPass;
+    }
+    
+    @Override
+    public Direction chooseDirection(final Map<Direction, Terrain> theNeighbors) {
+        if (theNeighbors.get(getDirection()) == Terrain.TRAIL) {
+            myDirection = getDirection();
+        } else if (theNeighbors.get(getDirection().left()) == Terrain.TRAIL) {
+            myDirection = getDirection().left();
+        } else if (theNeighbors.get(getDirection().right()) == Terrain.TRAIL) {
+            myDirection = getDirection().right();
+        } else if ((theNeighbors.get(getDirection()) == Terrain.STREET)
+                        || (theNeighbors.get(getDirection()) == Terrain.LIGHT)) {
+            myDirection = getDirection();
+        } else if ((theNeighbors.get(getDirection().left()) == Terrain.STREET)
+                        || (theNeighbors.get(getDirection().left()) == Terrain.LIGHT)) {
+            myDirection = getDirection().left();
+        } else if ((theNeighbors.get(getDirection().right()) == Terrain.STREET)
+                        || (theNeighbors.get(getDirection().right()) == Terrain.LIGHT)) {
+            myDirection = getDirection().right();
+        } else {
+            myDirection = getDirection().reverse();
+        }
+        return myDirection;
+    }
+}

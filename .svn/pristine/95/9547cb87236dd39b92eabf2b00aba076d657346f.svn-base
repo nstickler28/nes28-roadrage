@@ -1,0 +1,72 @@
+package model;
+
+import java.util.Map;
+
+/**
+ * Class for the car.
+ * 
+ * @author Nathan Stickler
+ * @version 10/19/19
+ */
+public class Car extends AbstractVehicle {
+    
+    /** Death time for the car. */
+    private static final int DEATH_TIME = 15;
+
+    /** 
+     * Constructor for the car.
+     * 
+     * @param theX The x coordinate of the car.
+     * @param theY The y coordinate of the car.
+     * @param theDirection The direction of the car.
+     */
+    public Car(final int theX, final int theY, final Direction theDirection) {
+        super(theX, theY, theDirection, DEATH_TIME);
+    }
+    
+    @Override
+    public boolean canPass(final Terrain theTerrain, final Light theLight) {
+        boolean canPass = false;
+        if (theTerrain == Terrain.STREET || theTerrain == Terrain.CROSSWALK) {
+            canPass = true;
+        } else if (theTerrain == Terrain.LIGHT && theLight != Light.RED) {
+            canPass = true;
+        }
+        return canPass;
+    }
+    
+    @Override
+    public Direction chooseDirection(final Map<Direction, Terrain> theNeighbors) {
+        Direction carDir = getDirection();
+        final Terrain[] taxiTerrain = new Terrain[] {
+                        theNeighbors.get(getDirection()),
+                        theNeighbors.get(getDirection().left()),
+                        theNeighbors.get(getDirection().right())};
+        if (validTerrain(taxiTerrain[0])) {
+            carDir = getDirection();
+        } else if (validTerrain(taxiTerrain[1])) {
+            carDir = carDir.left();
+        } else if (validTerrain(taxiTerrain[2])) {
+            carDir = carDir.right();
+        } else {
+            carDir = carDir.reverse();
+        }
+        return carDir;
+    }
+    
+    /**
+     * Helper method for chooseDirection.
+     * Checks the terrain to see if it is a valid terrain type.
+     * 
+     * @param theTerrain The terrain.
+     * @return True if the terrain is valid, else false.
+     */
+    private boolean validTerrain(final Terrain theTerrain) {
+        boolean validTerrain = false;
+        if (theTerrain == Terrain.STREET || theTerrain == Terrain.LIGHT
+                        || theTerrain == Terrain.CROSSWALK) {
+            validTerrain = true;
+        }
+        return validTerrain;
+    }
+}

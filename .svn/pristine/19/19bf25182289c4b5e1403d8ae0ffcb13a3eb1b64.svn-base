@@ -1,0 +1,49 @@
+package model;
+
+import java.util.Map;
+
+public class Taxi extends AbstractVehicle {
+    
+    private static final int DEATH_TIME = 15;
+    
+    public Taxi(final int theX, final int theY, final Direction theDirection) {
+        super(theX, theY, theDirection, DEATH_TIME);
+    }
+    
+    @Override
+    public boolean canPass(final Terrain theTerrain, final Light theLight) {
+        boolean canPass = false;
+        if (theTerrain == Terrain.STREET || theTerrain == Terrain.CROSSWALK) {
+            canPass = true;
+        } else if (theTerrain == Terrain.LIGHT && theLight != Light.RED) {
+            canPass = true;
+        }
+        return canPass;
+    }
+    
+    @Override
+    public Direction chooseDirection(final Map<Direction, Terrain> theNeighbors) {
+        Direction dir = getDirection();
+        final Terrain[] terrain = new Terrain[] {
+                        theNeighbors.get(getDirection()),
+                        theNeighbors.get(dir.left()),
+                        theNeighbors.get(dir.right())};
+        if (validTerrain(terrain[0])) {
+            dir = getDirection();
+        } else if (validTerrain(terrain[1])) {
+            dir = dir.right();
+        } else {
+            dir = dir.reverse();
+        }
+        return dir;
+    }
+    
+    private boolean validTerrain(final Terrain theTerrain) {
+        boolean validTerrain = false;
+        if (theTerrain == Terrain.STREET || theTerrain == Terrain.LIGHT
+                        || theTerrain == Terrain.CROSSWALK) {
+            validTerrain = true;
+        }
+        return validTerrain;
+    }
+}

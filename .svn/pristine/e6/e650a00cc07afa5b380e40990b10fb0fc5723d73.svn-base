@@ -1,0 +1,88 @@
+package model;
+
+import java.util.Map;
+
+/**
+ * Class for the truck.
+ * 
+ * @author Nathan Stickler
+ * @version 10/18/19
+ *
+ */
+public class Truck extends AbstractVehicle {
+
+    /** Death time for a truck. */
+    private static final int DEATH_TIME = 0;
+    
+    /**
+     * Constructor for the Truck.
+     * 
+     * @param theX The x coordinate of the truck.
+     * @param theY The y coordinate of the truck.
+     * @param theDirection The direction of the truck.
+     */
+    public Truck(final int theX, final int theY, final Direction theDirection) {
+        super(theX, theY, theDirection, DEATH_TIME);
+    }
+    
+    @Override
+    public boolean canPass(final Terrain theTerrain, final Light theLight) {
+        boolean canPass = false;
+        if (theTerrain == Terrain.STREET || theTerrain == Terrain.LIGHT) {
+            canPass = true;
+        } else if (theTerrain == Terrain.CROSSWALK && theLight != Light.RED) {
+            canPass = true;
+        }
+        return canPass;
+    }
+    
+    @Override
+    public Direction chooseDirection(final Map<Direction, Terrain> theNeighbors) {
+        Direction truckDir = Direction.random();
+        final Direction originalDirection = getDirection();
+        if (directionCheck(theNeighbors)) {
+            while (theNeighbors.get(truckDir) != Terrain.STREET
+                            && theNeighbors.get(truckDir) != Terrain.LIGHT
+                            && theNeighbors.get(truckDir) != Terrain.CROSSWALK
+                            || truckDir == getDirection().reverse()) {
+                truckDir = Direction.random(); 
+            }
+        } else {
+            truckDir = originalDirection.reverse();
+        }
+        return truckDir;
+    }
+    
+    /**
+     * Helper method for chooseDirection.
+     * Checks terrain next to vehicle in three directions: left, straight, right.
+     * 
+     * @param theNeighbors The map of the neighboring terrain.
+     * @return True if the vehicle can move in any of the three directions, else false.
+     */
+    private boolean directionCheck(final Map<Direction, Terrain> theNeighbors) {
+        boolean directionCheck = false;
+        if (validTerrain(theNeighbors.get(getDirection().left()))
+                        || validTerrain(theNeighbors.get(getDirection()))
+                        || validTerrain(theNeighbors.get(getDirection().right()))) {
+            directionCheck = true;
+        }
+        return directionCheck;
+    }
+    
+    /**
+     * Helper method for directionCheck.
+     * Checks the passed terrain to see if it is a valid terrain type.
+     * 
+     * @param theTerrain The terrain.
+     * @return True if the terrain is valid, else false.
+     */
+    private boolean validTerrain(final Terrain theTerrain) {
+        boolean validTerrain = false;
+        if (theTerrain == Terrain.STREET || theTerrain == Terrain.LIGHT
+                        || theTerrain == Terrain.CROSSWALK) {
+            validTerrain = true;
+        }
+        return validTerrain;
+    }
+}

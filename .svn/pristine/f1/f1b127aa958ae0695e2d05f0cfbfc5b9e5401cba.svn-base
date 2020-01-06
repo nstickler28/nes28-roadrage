@@ -1,0 +1,67 @@
+package model;
+
+import java.util.Map;
+
+public class Human extends AbstractVehicle {
+
+    private static final int DEATH_TIME = 45;
+    
+    private Terrain myTerrain;
+    
+    public Human(final int theX, final int theY, final Direction theDirection) {
+        super(theX, theY, theDirection, DEATH_TIME);
+    }
+    
+    @Override
+    public boolean canPass(final Terrain theTerrain, final Light theLight) {
+        boolean canPass = false;
+        if (theTerrain == Terrain.GRASS) {
+            canPass = true;
+        } else if (theTerrain == Terrain.CROSSWALK && (theLight != Light.GREEN)) {
+            canPass = true;
+        }
+        return canPass;
+    }
+    
+    @Override
+    public Direction chooseDirection(final Map<Direction, Terrain> theNeighbors) {
+        Direction direction = Direction.random();
+        final Direction originalDirection = getDirection();
+        final Terrain[] humanTerrain = new Terrain[] {
+                       theNeighbors.get(getDirection()),
+                       theNeighbors.get(originalDirection.left()),
+                       theNeighbors.get(originalDirection.right())};
+       
+        if (isGrass(humanTerrain) && !isCrosswalk(humanTerrain)) {
+            while (theNeighbors.get(direction) != Terrain.GRASS
+                           || direction == getDirection().reverse()) {
+                direction = direction.random();
+            }
+        } else if (isCrosswalk(humanTerrain)) {
+            while (theNeighbors.get(direction) != Terrain.CROSSWALK) {
+                direction = direction.random();
+            }
+        } else {
+            direction = originalDirection.reverse();
+        }
+        return direction;
+    }
+    
+    private boolean isGrass(final Terrain[] theTerrain) {
+        boolean isGrass = false;
+        if (theTerrain[0] == Terrain.GRASS || theTerrain[1] == Terrain.GRASS
+                        || theTerrain[2] == Terrain.GRASS) {
+            isGrass = true;
+        }
+        return isGrass;
+    }
+    
+    private boolean isCrosswalk(final Terrain[] theTerrain) {
+        boolean isCrosswalk = false;
+        if (theTerrain[0] == Terrain.CROSSWALK || theTerrain[1] == Terrain.CROSSWALK
+                        || theTerrain[2] == Terrain.CROSSWALK) {
+            isCrosswalk = true;
+        }
+        return isCrosswalk;
+    }
+}

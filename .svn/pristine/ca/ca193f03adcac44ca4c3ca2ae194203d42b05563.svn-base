@@ -1,0 +1,56 @@
+package model;
+
+import java.util.Map;
+
+/**
+ * Class for the taxi.
+ * 
+ * @author Nathan Stickler
+ * @version 10/18/19
+ *
+ */
+public class Taxi extends AbstractVehicle {
+    
+    /** Death time for the taxi. */
+    private static final int DEATH_TIME = 15;
+    /** Direction of the taxi. */
+    private Direction myDirection;
+    /**
+     * Constructor for the taxi.
+     * 
+     * @param theX The x coordinate of the taxi.
+     * @param theY The y coordinate of the taxi.
+     * @param theDirection The direction of the taxi.
+     */
+    public Taxi(final int theX, final int theY, final Direction theDirection) {
+        super(theX, theY, theDirection, DEATH_TIME);
+    }
+    
+    @Override
+    public boolean canPass(final Terrain theTerrain, final Light theLight) {
+        boolean canPass = false;
+        if (theTerrain == Terrain.STREET || theTerrain == Terrain.CROSSWALK) {
+            canPass = true;
+        } else if (theTerrain == Terrain.LIGHT && theLight != Light.RED) {
+            canPass = true;
+        }
+        return canPass;
+    }
+    
+    @Override
+    public Direction chooseDirection(final Map<Direction, Terrain> theNeighbors) {
+        if ((theNeighbors.get(getDirection()) == Terrain.STREET)
+                        || (theNeighbors.get(getDirection()) == Terrain.LIGHT)) {
+            myDirection = getDirection();
+        } else if ((theNeighbors.get(getDirection().left()) == Terrain.STREET)
+                        || (theNeighbors.get(getDirection().left()) == Terrain.LIGHT)) {
+            myDirection = getDirection().left();
+        } else if ((theNeighbors.get(getDirection().right()) == Terrain.STREET)
+                        || (theNeighbors.get(getDirection().right()) == Terrain.LIGHT)) {
+            myDirection = getDirection().right();
+        } else {
+            myDirection = getDirection().reverse();
+        }
+        return myDirection;
+    }
+}

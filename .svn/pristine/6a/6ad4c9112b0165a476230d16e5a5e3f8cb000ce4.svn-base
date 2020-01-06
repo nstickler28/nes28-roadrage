@@ -1,0 +1,54 @@
+package model;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+public class Truck extends AbstractVehicle {
+
+    
+    private static final int DEATH_TIME = 0;
+    
+    
+    public Truck(final int theX, final int theY, final Direction theDirection) {
+        super(theX, theY, theDirection, DEATH_TIME);
+    }
+    
+    @Override
+    public boolean canPass(final Terrain theTerrain, final Light theLight) {
+        boolean canPass = false;
+        if (theTerrain == Terrain.STREET || theTerrain == Terrain.LIGHT) {
+            canPass = true;
+        } else if (theTerrain == Terrain.CROSSWALK && theLight != Light.RED) {
+            canPass = true;
+        }
+        return canPass;
+    }
+    
+    @Override
+    public Direction chooseDirection(final Map<Direction, Terrain> theNeighbors) {
+        final Random rand = new Random();
+        final Direction dir;
+        final List<Direction> possibleDirections = new ArrayList<>();
+        if (theNeighbors.get(getDirection().left()) == Terrain.STREET
+                        || theNeighbors.get(getDirection().left()) == Terrain.LIGHT) {
+            possibleDirections.add(getDirection().left());
+        }
+        if (theNeighbors.get(getDirection().right()) == Terrain.STREET
+                        || theNeighbors.get(getDirection().right()) == Terrain.LIGHT){
+            possibleDirections.add(getDirection().right());
+        }
+        if (theNeighbors.get(getDirection()) == Terrain.STREET
+                        || theNeighbors.get(getDirection()) == Terrain.LIGHT) {
+            possibleDirections.add(getDirection());
+        }
+        if (possibleDirections.isEmpty()) {
+            dir = getDirection().reverse();
+        } else {
+            final int randomIndex = rand.nextInt(possibleDirections.size());
+            dir = possibleDirections.get(randomIndex);
+        }
+        return dir;
+    }
+}
